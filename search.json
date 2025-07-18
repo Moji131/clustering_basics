@@ -1,0 +1,62 @@
+[
+  {
+    "objectID": "01_intro_to_clustering.html",
+    "href": "01_intro_to_clustering.html",
+    "title": "Introduction to Clustering and Dimensionality Reduction",
+    "section": "",
+    "text": "Clustering is an unsupervised learning method that groups similar data points based on feature similarity, rather than relying on labels. It helps uncover hidden patterns in data.\nWhy is it useful? - Discover customer segments in marketing data\n- Detect anomalies in network traffic or IoT data\n- Compress images by grouping similar colors\n- Identify disease subtypes in healthcare\n- Cluster news articles by topic\nIn this notebook: 1. Overview of clustering methods\n2. Overview of dimensionality reduction\n3. An interactive demo: K-means on a toy dataset\n4. Metrics to evaluate clustering results",
+    "crumbs": [
+      "01_intro_to_clustering"
+    ]
+  },
+  {
+    "objectID": "01_intro_to_clustering.html#methods-covered",
+    "href": "01_intro_to_clustering.html#methods-covered",
+    "title": "Introduction to Clustering and Dimensionality Reduction",
+    "section": "Methods Covered",
+    "text": "Methods Covered\n\nClustering Algorithms\n\nK-means\nPartitions data into (k) clusters by minimizing within-cluster variance.\nHierarchical Clustering\nBuilds nested clusters via agglomerative or divisive linkage.\nDBSCAN (Density-Based)\nFinds clusters of arbitrary shape and identifies noise.\n\n\n\nDimensionality Reduction\n\nPCA (Principal Component Analysis)\nLinearly projects data into directions that maximize variance.\nt-SNE (t-Distributed Stochastic Neighbor Embedding)\nNon-linear technique optimized for visual separation in low-D.\n\n\n\nEvaluation Metrics\n\nSilhouette Score (−1 to 1): compactness vs separation\n\nDavies–Bouldin Index: average distance ratio of clusters\n\nCalinski–Harabasz Index: variance ratio\n\nVisual Inspection: critical for clustering quality\n\nLet’s start with a hands-on demo using k-means on a synthetic dataset.\n\nimport numpy as np\nimport matplotlib.pyplot as plt\nimport seaborn as sns\nfrom sklearn.datasets import make_blobs\nfrom sklearn.cluster import KMeans\nfrom sklearn.metrics import silhouette_score, davies_bouldin_score\nimport pandas as pd\n\nsns.set(style=\"whitegrid\", palette=\"muted\", font_scale=1.2)\n\n\n# Generate synthetic data\nX, y_true = make_blobs(n_samples=300, centers=4, cluster_std=0.60, random_state=42)\n\nplt.figure(figsize=(6, 6))\nplt.scatter(X[:, 0], X[:, 1], s=30, color='grey', alpha=0.7)\nplt.title(\"Toy dataset with 4 true clusters\")\nplt.xlabel(\"Feature 0\")\nplt.ylabel(\"Feature 1\")\nplt.show()\n\n\n\n\n\n\n\n\n\nresults = []\nks = [2, 3, 4, 5, 6]\nfor k in ks:\n    km = KMeans(n_clusters=k, random_state=42)\n    labels = km.fit_predict(X)\n    sil = silhouette_score(X, labels)\n    db = davies_bouldin_score(X, labels)\n    results.append((k, sil, db))\n\n# Show results\ndf = pd.DataFrame(results, columns=[\"k\",\"Silhouette\",\"Davies-Bouldin\"])\ndf\n\n\n\n\n\n\n\n\nk\nSilhouette\nDavies-Bouldin\n\n\n\n\n0\n2\n0.615485\n0.483750\n\n\n1\n3\n0.799280\n0.312296\n\n\n2\n4\n0.875647\n0.173674\n\n\n3\n5\n0.731072\n0.587863\n\n\n4\n6\n0.585323\n0.844187\n\n\n\n\n\n\n\n\n# Plot results\nfig, ax1 = plt.subplots(figsize=(7, 4))\nax2 = ax1.twinx()\nax1.plot(df.k, df.Silhouette, marker='o', color='blue', label='Silhouette')\nax2.plot(df.k, df[\"Davies-Bouldin\"], marker='s', color='red', label='Davies-Bouldin')\n\nax1.set_xlabel(\"Number of clusters (k)\")\nax1.set_ylabel(\"Silhouette Score\", color='blue')\nax2.set_ylabel(\"Davies-Bouldin Index\", color='red')\nax1.set_xticks(ks)\nfig.tight_layout()\nplt.title(\"Clustering evaluation vs k\")\nplt.show()\n\n\n\n\n\n\n\n\n\nbest_k = 4\nkm4 = KMeans(n_clusters=best_k, random_state=42)\nlabels4 = km4.fit_predict(X)\ncentroids = km4.cluster_centers_\n\nplt.figure(figsize=(6,6))\nplt.scatter(X[:,0], X[:,1], c=labels4, s=30, cmap='tab10', alpha=0.8)\nplt.scatter(centroids[:,0], centroids[:,1], s=200, c='black', marker='X')\nplt.title(\"K-means clustering with k=4\")\nplt.xlabel(\"Feature 0\")\nplt.ylabel(\"Feature 1\")\nplt.show()\n\n\n\n\n\n\n\n\n\n\n🧐 Interpretation\n\nClusters are well-separated; centroids represent cluster centres.\nSilhouette ≥ 0.5 indicates reasonably distinct clusters in this case.\nDavies–Bouldin &lt; 1 is also indicative of good clustering.",
+    "crumbs": [
+      "01_intro_to_clustering"
+    ]
+  },
+  {
+    "objectID": "00_setup_guide.html",
+    "href": "00_setup_guide.html",
+    "title": "Clustering Basics",
+    "section": "",
+    "text": "Sign up for an NCI account if you don’t already have one.\nSelect Projects and groups from the left hand side menu and then select the Find project or group tab. Search for cd82, the NCI-QCIF Training Partnership Project, and ask to join.",
+    "crumbs": [
+      "00_setup_guide"
+    ]
+  },
+  {
+    "objectID": "00_setup_guide.html#nci-account-setup",
+    "href": "00_setup_guide.html#nci-account-setup",
+    "title": "Clustering Basics",
+    "section": "",
+    "text": "Sign up for an NCI account if you don’t already have one.\nSelect Projects and groups from the left hand side menu and then select the Find project or group tab. Search for cd82, the NCI-QCIF Training Partnership Project, and ask to join.",
+    "crumbs": [
+      "00_setup_guide"
+    ]
+  },
+  {
+    "objectID": "00_setup_guide.html#nci-australian-research-environment-are",
+    "href": "00_setup_guide.html#nci-australian-research-environment-are",
+    "title": "Clustering Basics",
+    "section": "NCI Australian Research Environment (ARE)",
+    "text": "NCI Australian Research Environment (ARE)\n\nConnect to NCI Australian Research Environment.\nBe sure you use your NCI ID (eg, ab1234) for the username and not your email address.\nUnder Featured Apps, find and click the JupterLab: Start a JupyterLab instance option. \nTo Launch a JuptyerLab session, set these resource requirements:\n\n\n\n\n\n\n\nResource\nValue\n\n\n\n\nWalltime (hours)\n5\n\n\nQueue\nnormalbw\n\n\nCompute Size\nsmall\n\n\nProject\ncd82\n\n\nStorage\nscratch/cd82\n\n\nAdvanced Options…\n\n\n\nModules\npython3/3.9.2\n\n\nPython or Conda virtual environment base\n/scratch/cd82/venv_workshop\n\n\n\nThen click the Launch button.\nThis will take you to your interactive session page you will see that that your JupyterLab session is Queued while ARE is searching for a compute node that will satisfy your requirements.\nOnce found, the page will update with a button that you can click to Open JupyterLab.\nHere is a screenshot of a JupyterLab landing page that should be similar to the one that opens in your web browser after starting the JupyterLab server on either macOS or Windows.",
+    "crumbs": [
+      "00_setup_guide"
+    ]
+  },
+  {
+    "objectID": "00_setup_guide.html#transferring-workshop-notebooks",
+    "href": "00_setup_guide.html#transferring-workshop-notebooks",
+    "title": "Clustering Basics",
+    "section": "Transferring workshop notebooks",
+    "text": "Transferring workshop notebooks\nWhen you have a Jupyter server running use JupyterLab file navigator to go the folder that has the same name as your username. Then make a new Jupyter notebook by clicking on the “Python 3” icon under “Notebook” section and run the following code in a cell:\n!rm -rf /scratch/cd82/$USER/notebooks\n!mkdir -p /scratch/cd82/$USER/notebooks\n!cp /scratch/cd82/clustering_ws/* /scratch/cd82/$USER/notebooks/\n!ls /scratch/cd82/$USER/notebooks/\nAnd then use the Jupyter file browser to navigate to the directory: /scratch/cd82/$USER/notebooks/ (where $USER is your NCI username)",
+    "crumbs": [
+      "00_setup_guide"
+    ]
+  }
+]
