@@ -106,6 +106,35 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <link rel="stylesheet" href="styles.css">
 </head>
@@ -156,6 +185,36 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="menu-text">01_intro_to_clustering</span></a>
   </div>
 </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02_kmeans_clustering.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">02_kmeans_clustering</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./03_hierarchical_clustering.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">03_hierarchical_clustering</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./04_dbscan_clustering.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">04_dbscan_clustering</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./05_PCA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">05_PCA</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./06_tsne.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">06_tsne</span></a>
+  </div>
+</li>
     </ul>
     </div>
 </nav>
@@ -171,8 +230,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#clustering-algorithms" id="toc-clustering-algorithms" class="nav-link" data-scroll-target="#clustering-algorithms">Clustering Algorithms</a></li>
   <li><a href="#dimensionality-reduction" id="toc-dimensionality-reduction" class="nav-link" data-scroll-target="#dimensionality-reduction">Dimensionality Reduction</a></li>
   <li><a href="#evaluation-metrics" id="toc-evaluation-metrics" class="nav-link" data-scroll-target="#evaluation-metrics">Evaluation Metrics</a></li>
+  </ul></li>
+  <li><a href="#generate-synthetic-data" id="toc-generate-synthetic-data" class="nav-link" data-scroll-target="#generate-synthetic-data">Generate synthetic data</a></li>
+  <li><a href="#how-k-means-clustering-works" id="toc-how-k-means-clustering-works" class="nav-link" data-scroll-target="#how-k-means-clustering-works">How K-Means Clustering Works</a>
+  <ul class="collapse">
+  <li><a href="#steps" id="toc-steps" class="nav-link" data-scroll-target="#steps">Steps:</a></li>
+  </ul></li>
+  <li><a href="#clustering-evaluation-metrics" id="toc-clustering-evaluation-metrics" class="nav-link" data-scroll-target="#clustering-evaluation-metrics">Clustering Evaluation Metrics</a>
+  <ul class="collapse">
+  <li><a href="#silhouette-score" id="toc-silhouette-score" class="nav-link" data-scroll-target="#silhouette-score">📏 Silhouette Score</a></li>
+  <li><a href="#what-are-a_i-and-b_i" id="toc-what-are-a_i-and-b_i" class="nav-link" data-scroll-target="#what-are-a_i-and-b_i">🔹 What are <span class="math inline">\(a_i\)</span> and <span class="math inline">\(b_i\)</span>?</a></li>
+  <li><a href="#interpreting-the-score" id="toc-interpreting-the-score" class="nav-link" data-scroll-target="#interpreting-the-score">📊 Interpreting the Score</a></li>
+  <li><a href="#daviesbouldin-index" id="toc-daviesbouldin-index" class="nav-link" data-scroll-target="#daviesbouldin-index">Davies–Bouldin Index</a></li>
+  <li><a href="#visual-inspection" id="toc-visual-inspection" class="nav-link" data-scroll-target="#visual-inspection">Visual Inspection</a></li>
   <li><a href="#interpretation" id="toc-interpretation" class="nav-link" data-scroll-target="#interpretation">🧐 Interpretation</a></li>
   </ul></li>
+  <li><a href="#visualising-the-final-clustering-result-k-4" id="toc-visualising-the-final-clustering-result-k-4" class="nav-link" data-scroll-target="#visualising-the-final-clustering-result-k-4">Visualising the Final Clustering Result (k = 4)</a></li>
   </ul>
 </nav>
     </div>
@@ -237,8 +310,6 @@ Non-linear technique optimized for visual separation in low-D.</li>
 </li>
 <li><strong>Davies–Bouldin Index</strong>: average distance ratio of clusters<br>
 </li>
-<li><strong>Calinski–Harabasz Index</strong>: variance ratio<br>
-</li>
 <li><strong>Visual Inspection</strong>: critical for clustering quality</li>
 </ul>
 <p>Let’s start with a hands-on demo using <strong>k-means</strong> on a synthetic dataset.</p>
@@ -251,10 +322,14 @@ Non-linear technique optimized for visual separation in low-D.</li>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.metrics <span class="im">import</span> silhouette_score, davies_bouldin_score</span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>sns.<span class="bu">set</span>(style<span class="op">=</span><span class="st">"whitegrid"</span>, palette<span class="op">=</span><span class="st">"muted"</span>, font_scale<span class="op">=</span><span class="fl">1.2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co"># sns.set(style="whitegrid", palette="muted", font_scale=1.2)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+</section>
+</section>
+<section id="generate-synthetic-data" class="level2">
+<h2 class="anchored" data-anchor-id="generate-synthetic-data">Generate synthetic data</h2>
 <div id="ea2e7cd3" class="cell" data-execution_count="2">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate synthetic data</span></span>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>X, y_true <span class="op">=</span> make_blobs(n_samples<span class="op">=</span><span class="dv">300</span>, centers<span class="op">=</span><span class="dv">4</span>, cluster_std<span class="op">=</span><span class="fl">0.60</span>, random_state<span class="op">=</span><span class="dv">42</span>)</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">6</span>, <span class="dv">6</span>))</span>
@@ -271,19 +346,89 @@ Non-linear technique optimized for visual separation in low-D.</li>
 </div>
 </div>
 </div>
+</section>
+<section id="how-k-means-clustering-works" class="level2">
+<h2 class="anchored" data-anchor-id="how-k-means-clustering-works">How K-Means Clustering Works</h2>
+<p>K-Means is a centroid-based clustering algorithm that partitions the dataset into (k) clusters.</p>
+<section id="steps" class="level3">
+<h3 class="anchored" data-anchor-id="steps">Steps:</h3>
+<ol type="1">
+<li><strong>Initialisation</strong>: Randomly place (k) centroids in the feature space.</li>
+<li><strong>Assignment</strong>: Each data point is assigned to the nearest centroid, forming clusters.</li>
+<li><strong>Update</strong>: New centroids are computed as the mean of all points in each cluster.</li>
+<li><strong>Repeat</strong>: Assignment and update steps repeat until centroids stabilise or a maximum number of iterations is reached.</li>
+</ol>
+<p>The algorithm aims to <strong>minimise the total within-cluster sum of squares</strong> (inertia), i.e., the variance within each cluster.</p>
+<p>K-Means works well for convex, isotropic clusters but struggles with non-spherical or unevenly sized groups.</p>
+</section>
+</section>
+<section id="clustering-evaluation-metrics" class="level2">
+<h2 class="anchored" data-anchor-id="clustering-evaluation-metrics">Clustering Evaluation Metrics</h2>
+<p>To assess clustering quality, we use a combination of numerical metrics and visual inspection. These metrics rely on <strong>Euclidean distance</strong> (Cartesian distance) to measure intra-cluster compactness and inter-cluster separation.</p>
+<section id="silhouette-score" class="level3">
+<h3 class="anchored" data-anchor-id="silhouette-score">📏 Silhouette Score</h3>
+<p>The <strong>silhouette score</strong> measures how well each point fits within its cluster compared to other clusters.</p>
+<p>To compute a <strong>single silhouette score</strong> for the entire clustering result, we take the <strong>average silhouette score across all data points</strong>:</p>
+<p><span class="math display">\[
+S = \frac{1}{n} \sum_{i=1}^{n} s_i
+\]</span></p>
+<p>where: - <span class="math inline">\(n\)</span> is the total number of samples, - <span class="math inline">\(s_i\)</span> is the silhouette score for point <span class="math inline">\(i\)</span>, calculated as:</p>
+<p><span class="math display">\[
+s_i = \frac{b_i - a_i}{\max(a_i, b_i)}
+\]</span></p>
+<hr>
+</section>
+<section id="what-are-a_i-and-b_i" class="level3">
+<h3 class="anchored" data-anchor-id="what-are-a_i-and-b_i">🔹 What are <span class="math inline">\(a_i\)</span> and <span class="math inline">\(b_i\)</span>?</h3>
+<ul>
+<li><p><strong><span class="math inline">\(a_i\)</span></strong> = average distance from point <span class="math inline">\(i\)</span> to all <strong>other points in the same cluster</strong><br>
+→ Measures how <strong>tightly clustered</strong> the point is with its own group (intra-cluster cohesion).</p></li>
+<li><p><strong><span class="math inline">\(b_i\)</span></strong> = average distance from point <span class="math inline">\(i\)</span> to all points in the <strong>nearest different cluster</strong><br>
+→ Measures how <strong>far away</strong> the point is from the <strong>closest alternative cluster</strong> (inter-cluster separation).</p></li>
+</ul>
+<hr>
+</section>
+<section id="interpreting-the-score" class="level3">
+<h3 class="anchored" data-anchor-id="interpreting-the-score">📊 Interpreting the Score</h3>
+<ul>
+<li><span class="math inline">\(S \approx 1\)</span>: Points are well-clustered and clearly separated.</li>
+<li><span class="math inline">\(S \approx 0\)</span>: Points lie between clusters — ambiguous assignment.</li>
+<li><span class="math inline">\(S &lt; 0\)</span>: Points may be <strong>misclassified</strong>, closer to another cluster than their own.</li>
+</ul>
+<hr>
+<p>The silhouette score provides both a <strong>quantitative</strong> and <strong>intuitive</strong> measure of clustering quality.</p>
+</section>
+<section id="daviesbouldin-index" class="level3">
+<h3 class="anchored" data-anchor-id="daviesbouldin-index">Davies–Bouldin Index</h3>
+<p>The DB index evaluates the average <strong>similarity</strong> between each cluster and its most similar one, where similarity is the ratio of intra-cluster dispersion to inter-cluster distance. It is computed as:</p>
+<p><span class="math display">\[
+DB = \frac{1}{k} \sum_{i=1}^{k} \max_{j \ne i} \left( \frac{\sigma_i + \sigma_j}{d(c_i, c_j)} \right)
+\]</span></p>
+<p>where: - <span class="math inline">\(\sigma_i\)</span> = average distance of all points in cluster <span class="math inline">\(i\)</span> to its centroid <span class="math inline">\(c_i\)</span> - <span class="math inline">\(d(c_i, c_j)\)</span> = Euclidean distance between centroids <span class="math inline">\(c_i\)</span> and <span class="math inline">\(c_j\)</span></p>
+<ul>
+<li><strong>Lower is better</strong></li>
+<li>A DB index less than 1 usually implies well-separated clusters</li>
+</ul>
+</section>
+<section id="visual-inspection" class="level3">
+<h3 class="anchored" data-anchor-id="visual-inspection">Visual Inspection</h3>
+<p>Plots of clustered data remain invaluable: - Reveal the shape, overlap, and structure of clusters - Help verify metric results and uncover edge cases - Especially useful when dimensionality is reduced (e.g., with PCA or t-SNE)</p>
+<p><strong>Conclusion</strong>: No single metric is sufficient on its own. Use a combination of quantitative scores and visual checks for a robust understanding of clustering performance.</p>
 <div id="ea1ccabf" class="cell" data-execution_count="3">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>results <span class="op">=</span> []</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>ks <span class="op">=</span> [<span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">6</span>]</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> k <span class="kw">in</span> ks:</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    km <span class="op">=</span> KMeans(n_clusters<span class="op">=</span>k, random_state<span class="op">=</span><span class="dv">42</span>)</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    labels <span class="op">=</span> km.fit_predict(X)</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    sil <span class="op">=</span> silhouette_score(X, labels)</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    db <span class="op">=</span> davies_bouldin_score(X, labels)</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    results.append((k, sil, db))</span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Show results</span></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.DataFrame(results, columns<span class="op">=</span>[<span class="st">"k"</span>,<span class="st">"Silhouette"</span>,<span class="st">"Davies-Bouldin"</span>])</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>df</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>results <span class="op">=</span> [] </span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>ks <span class="op">=</span> [<span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">6</span>]</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> k <span class="kw">in</span> ks:</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    km <span class="op">=</span> KMeans(n_clusters<span class="op">=</span>k, random_state<span class="op">=</span><span class="dv">42</span>)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    labels <span class="op">=</span> km.fit_predict(X)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    sil <span class="op">=</span> silhouette_score(X, labels)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    db <span class="op">=</span> davies_bouldin_score(X, labels)</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    results.append((k, sil, db))</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Show results</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.DataFrame(results, columns<span class="op">=</span>[<span class="st">"k"</span>, <span class="st">"Silhouette"</span>, <span class="st">"Davies-Bouldin"</span>])</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>df</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="3">
 <div>
 
@@ -337,17 +482,14 @@ Non-linear technique optimized for visual separation in low-D.</li>
 <div id="980b422a" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot results</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>fig, ax1 <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="dv">4</span>))</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>ax2 <span class="op">=</span> ax1.twinx()</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>ax1.plot(df.k, df.Silhouette, marker<span class="op">=</span><span class="st">'o'</span>, color<span class="op">=</span><span class="st">'blue'</span>, label<span class="op">=</span><span class="st">'Silhouette'</span>)</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>ax2.plot(df.k, df[<span class="st">"Davies-Bouldin"</span>], marker<span class="op">=</span><span class="st">'s'</span>, color<span class="op">=</span><span class="st">'red'</span>, label<span class="op">=</span><span class="st">'Davies-Bouldin'</span>)</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>ax1.set_xlabel(<span class="st">"Number of clusters (k)"</span>)</span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>ax1.set_ylabel(<span class="st">"Silhouette Score"</span>, color<span class="op">=</span><span class="st">'blue'</span>)</span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>ax2.set_ylabel(<span class="st">"Davies-Bouldin Index"</span>, color<span class="op">=</span><span class="st">'red'</span>)</span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>ax1.set_xticks(ks)</span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()</span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Clustering evaluation vs k"</span>)</span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>ax1.plot(df.k, df.Silhouette, marker<span class="op">=</span><span class="st">'o'</span>, label<span class="op">=</span><span class="st">'Silhouette'</span>)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>ax1.plot(df.k, df[<span class="st">"Davies-Bouldin"</span>], marker<span class="op">=</span><span class="st">'o'</span>, label<span class="op">=</span><span class="st">'Davies-Bouldin'</span>)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>ax1.set_xlabel(<span class="st">"Number of clusters (k)"</span>)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Clustering evaluation vs k"</span>)</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>plt.legend()</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -356,7 +498,7 @@ Non-linear technique optimized for visual separation in low-D.</li>
 </div>
 </div>
 </div>
-<div id="6109f8a5" class="cell" data-execution_count="5">
+<div id="9c018929" class="cell" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>best_k <span class="op">=</span> <span class="dv">4</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>km4 <span class="op">=</span> KMeans(n_clusters<span class="op">=</span>best_k, random_state<span class="op">=</span><span class="dv">42</span>)</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>labels4 <span class="op">=</span> km4.fit_predict(X)</span>
@@ -380,14 +522,43 @@ Non-linear technique optimized for visual separation in low-D.</li>
 </section>
 <section id="interpretation" class="level3">
 <h3 class="anchored" data-anchor-id="interpretation">🧐 Interpretation</h3>
+<p>Let’s break down what each evaluation metric tells us:</p>
 <ul>
-<li>Clusters are well-separated; centroids represent cluster centres.</li>
-<li>Silhouette ≥ 0.5 indicates reasonably distinct clusters in this case.</li>
-<li>Davies–Bouldin &lt; 1 is also indicative of good clustering.</li>
+<li><p><strong>Silhouette Score</strong>: A score ≥ 0.5 typically suggests well-separated, compact clusters. Here, the silhouette score peaks at (k = 4), suggesting it’s a strong candidate for the correct number of clusters.</p></li>
+<li><p><strong>Davies–Bouldin Index</strong>: Lower values indicate better clustering. At (k = 4), the DB index is at its minimum, meaning the clusters are more distinct from one another and internally tight.</p></li>
+<li><p><strong>Visual Inspection</strong>: When plotted, the clusters at (k = 4) appear well-formed and evenly separated. Visual inspection validates the metrics and helps catch edge cases where automated scores might be misleading.</p></li>
 </ul>
-
-
+<p>All metrics point to (k = 4) as the optimal choice for this dataset, confirming that the clustering structure is meaningful and the method performed well.</p>
 </section>
+</section>
+<section id="visualising-the-final-clustering-result-k-4" class="level2">
+<h2 class="anchored" data-anchor-id="visualising-the-final-clustering-result-k-4">Visualising the Final Clustering Result (k = 4)</h2>
+<p>Based on our evaluation metrics, we identified <strong>k = 4</strong> as the best number of clusters. In this step, we re-fit the K-Means model using <code>k = 4</code> and visualise the resulting clusters.</p>
+<p>Each point is coloured according to its assigned cluster, and the <strong>cluster centroids</strong> are shown as large black “X” markers. This plot helps us visually confirm whether the clusters are: - Well-separated - Roughly equal in size - Centered around meaningful centroids</p>
+<p>It’s a simple but powerful way to interpret and validate clustering results.</p>
+<div id="b2962eaf" class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>best_k <span class="op">=</span> <span class="dv">3</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>km4 <span class="op">=</span> KMeans(n_clusters<span class="op">=</span>best_k, random_state<span class="op">=</span><span class="dv">42</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>labels4 <span class="op">=</span> km4.fit_predict(X)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>centroids <span class="op">=</span> km4.cluster_centers_</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">6</span>,<span class="dv">6</span>))</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>plt.scatter(X[:,<span class="dv">0</span>], X[:,<span class="dv">1</span>], c<span class="op">=</span>labels4, s<span class="op">=</span><span class="dv">30</span>, cmap<span class="op">=</span><span class="st">'tab10'</span>, alpha<span class="op">=</span><span class="fl">0.8</span>)</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>plt.scatter(centroids[:,<span class="dv">0</span>], centroids[:,<span class="dv">1</span>], s<span class="op">=</span><span class="dv">200</span>, c<span class="op">=</span><span class="st">'black'</span>, marker<span class="op">=</span><span class="st">'X'</span>)</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"K-means clustering with k=3"</span>)</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Feature 0"</span>)</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Feature 1"</span>)</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="01_intro_to_clustering_files/figure-html/cell-7-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+
+
 </section>
 
 </main> <!-- /main -->
@@ -463,7 +634,7 @@ Non-linear technique optimized for visual separation in low-D.</li>
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp('/' + window.location.host + '/');
+        var filterRegex = new RegExp("https:\/\/Moji131\.github\.io\/clustering_basics\/");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
