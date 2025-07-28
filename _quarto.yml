@@ -20,7 +20,16 @@ website:
         text: 00_setup_guide
       - href: 01_intro_to_clustering.ipynb
         text: 01_intro_to_clustering
-
+      - href: 02_kmeans_clustering.ipynb
+        text: 02_kmeans_clustering      
+      - href: 03_hierarchical_clustering.ipynb
+        text: 03_hierarchical_clustering      
+      - href: 04_dbscan_clustering.ipynb
+        text: 04_dbscan_clustering
+      - href: 05_PCA.ipynb
+        text: 05_PCA
+      - href: 06_tsne.ipynb
+        text: 06_tsne
 
 
 

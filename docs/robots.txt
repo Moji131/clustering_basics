@@ -1,1 +1,1 @@
-Sitemap: https://Moji131.github.io/decision_tree_tutorial/sitemap.xml
+Sitemap: https://Moji131.github.io/clustering_basics/sitemap.xml

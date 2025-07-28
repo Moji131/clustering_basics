@@ -1,31 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://Moji131.github.io/decision_tree_tutorial/06_xgboost_regression.html</loc>
-    <lastmod>2025-07-15T22:37:00.850Z</lastmod>
+    <loc>https://Moji131.github.io/clustering_basics/06_tsne.html</loc>
+    <lastmod>2025-07-28T21:18:22.628Z</lastmod>
   </url>
   <url>
-    <loc>https://Moji131.github.io/decision_tree_tutorial/04_xgboost_classification.html</loc>
-    <lastmod>2025-07-15T22:51:49.678Z</lastmod>
+    <loc>https://Moji131.github.io/clustering_basics/04_dbscan_clustering.html</loc>
+    <lastmod>2025-07-28T19:47:36.614Z</lastmod>
   </url>
   <url>
-    <loc>https://Moji131.github.io/decision_tree_tutorial/02_decision_tree_classification.html</loc>
-    <lastmod>2025-07-15T22:21:34.366Z</lastmod>
+    <loc>https://Moji131.github.io/clustering_basics/02_kmeans_clustering.html</loc>
+    <lastmod>2025-07-28T11:20:10.352Z</lastmod>
   </url>
   <url>
-    <loc>https://Moji131.github.io/decision_tree_tutorial/00_setup_guide.html</loc>
-    <lastmod>2025-07-15T08:41:28.414Z</lastmod>
+    <loc>https://Moji131.github.io/clustering_basics/00_setup_guide.html</loc>
+    <lastmod>2025-07-18T00:57:35.268Z</lastmod>
   </url>
   <url>
-    <loc>https://Moji131.github.io/decision_tree_tutorial/01_decision_tree_basics.html</loc>
-    <lastmod>2025-07-15T22:34:24.004Z</lastmod>
+    <loc>https://Moji131.github.io/clustering_basics/01_intro_to_clustering.html</loc>
+    <lastmod>2025-07-28T10:51:12.327Z</lastmod>
   </url>
   <url>
-    <loc>https://Moji131.github.io/decision_tree_tutorial/03_random_forest_classification.html</loc>
-    <lastmod>2025-07-15T22:22:34.740Z</lastmod>
+    <loc>https://Moji131.github.io/clustering_basics/03_hierarchical_clustering.html</loc>
+    <lastmod>2025-07-28T11:43:15.718Z</lastmod>
   </url>
   <url>
-    <loc>https://Moji131.github.io/decision_tree_tutorial/05_random_forest_regression.html</loc>
-    <lastmod>2025-07-15T22:37:21.534Z</lastmod>
+    <loc>https://Moji131.github.io/clustering_basics/05_PCA.html</loc>
+    <lastmod>2025-07-28T20:39:55.770Z</lastmod>
   </url>
 </urlset>
